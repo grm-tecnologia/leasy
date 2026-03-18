@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, name, leadCount FROM categories;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 211RzuNU5vXhCm8.645f79bcb929 --database o2whmyWEnyg2xHJMbHxmnn --execute SELECT id, name, leadCount FROM categories;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "UGC (Creators & Marcas)",
+      "leadCount": "0"
+    },
+    {
+      "id": "2",
+      "name": "Processos Trabalhistas",
+      "leadCount": "0"
+    },
+    {
+      "id": "3",
+      "name": "Agências de Marketing",
+      "leadCount": "0"
+    },
+    {
+      "id": "4",
+      "name": "Consórcios",
+      "leadCount": "0"
+    },
+    {
+      "id": "5",
+      "name": "Mercado Imobiliário",
+      "leadCount": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tleadCount\n1\tUGC (Creators & Marcas)\t0\n2\tProcessos Trabalhistas\t0\n3\tAgências de Marketing\t0\n4\tConsórcios\t0\n5\tMercado Imobiliário\t0\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}

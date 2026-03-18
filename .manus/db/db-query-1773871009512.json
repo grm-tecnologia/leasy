@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM order_items; DELETE FROM orders; DELETE FROM leads; DELETE FROM upload_batches; DELETE FROM favorites; DELETE FROM activity_log;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 211RzuNU5vXhCm8.645f79bcb929 --database o2whmyWEnyg2xHJMbHxmnn --execute DELETE FROM order_items; DELETE FROM orders; DELETE FROM leads; DELETE FROM upload_batches; DELETE FROM favorites; DELETE FROM activity_log;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 107
+}

@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, name, icon FROM categories;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 211RzuNU5vXhCm8.645f79bcb929 --database o2whmyWEnyg2xHJMbHxmnn --execute SELECT id, name, icon FROM categories;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "UGC (Creators & Marcas)",
+      "icon": "Users"
+    },
+    {
+      "id": "2",
+      "name": "Processos Trabalhistas",
+      "icon": "Scale"
+    },
+    {
+      "id": "3",
+      "name": "Agências de Marketing",
+      "icon": "Megaphone"
+    },
+    {
+      "id": "4",
+      "name": "Consórcios",
+      "icon": "Wallet"
+    },
+    {
+      "id": "5",
+      "name": "Mercado Imobiliário",
+      "icon": "Building"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\ticon\n1\tUGC (Creators & Marcas)\tUsers\n2\tProcessos Trabalhistas\tScale\n3\tAgências de Marketing\tMegaphone\n4\tConsórcios\tWallet\n5\tMercado Imobiliário\tBuilding\n",
+  "stderr": "",
+  "execution_time_ms": 233
+}

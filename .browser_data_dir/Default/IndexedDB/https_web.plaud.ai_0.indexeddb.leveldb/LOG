@@ -1,0 +1,33 @@
+2026/03/17-05:41:40.050 3aa Reusing MANIFEST /home/ubuntu/.browser_data_dir/Default/IndexedDB/https_web.plaud.ai_0.indexeddb.leveldb/MANIFEST-000001
+2026/03/17-05:41:40.050 3aa Recovering log #6
+2026/03/17-05:41:40.050 3aa Reusing old log /home/ubuntu/.browser_data_dir/Default/IndexedDB/https_web.plaud.ai_0.indexeddb.leveldb/000006.log 
+2026/03/17-05:41:40.116 3aa Level-0 table #10: started
+2026/03/17-05:41:40.116 3aa Level-0 table #10: 2062 bytes OK
+2026/03/17-05:41:40.117 3aa Delete type=0 #6
+2026/03/17-05:41:40.117 3aa Manual compaction at level-0 from '\x00\x06\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x07\x00\x00\x00' @ 0 : 0; will stop at '\x00\x06\x00\x00\x05' @ 249 : 1
+2026/03/17-05:41:40.117 3aa Compacting 1@0 + 1@1 files
+2026/03/17-05:41:40.117 3aa Generated table #11@0: 117 keys, 2447 bytes
+2026/03/17-05:41:40.117 3aa Compacted 1@0 + 1@1 files => 2447 bytes
+2026/03/17-05:41:40.118 3aa compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/03/17-05:41:40.118 3aa Delete type=2 #10
+2026/03/17-05:41:40.118 3aa Manual compaction at level-0 from '\x00\x06\x00\x00\x05' @ 249 : 1 .. '\x00\x07\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/03/17-16:15:45.815 3ab Level-0 table #13: started
+2026/03/17-16:15:45.817 3ab Level-0 table #13: 1485 bytes OK
+2026/03/17-16:15:45.822 3ab Delete type=2 #7
+2026/03/17-16:15:45.822 3ab Delete type=0 #9
+2026/03/17-16:15:45.822 3ab Manual compaction at level-0 from (begin) .. (end); will stop at '\x00\x03\x01\x02\x013\x00[\x00D\x00E\x00F\x00A\x00U\x00L\x00T\x00]\x00!\x001\x00:\x003\x004\x006\x001\x008\x006\x005\x002\x004\x009\x001\x002\x00:\x00w\x00e\x00b\x00:\x002\x00a\x003\x00b\x006\x009\x00e\x00d\x001\x00f\x004\x008\x00d\x00b\x009\x000\x005\x00d\x003\x00a\x003\x005' @ 270 : 1
+2026/03/17-16:15:45.822 3ab Compacting 1@0 + 1@1 files
+2026/03/17-16:15:45.822 3ab Generated table #14@0: 123 keys, 2487 bytes
+2026/03/17-16:15:45.823 3ab Compacted 1@0 + 1@1 files => 2487 bytes
+2026/03/17-16:15:45.823 3ab compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/03/17-16:15:45.823 3ab Delete type=2 #11
+2026/03/17-16:15:45.823 3ab Delete type=2 #13
+2026/03/17-16:15:45.823 3ab Manual compaction at level-0 from '\x00\x03\x01\x02\x013\x00[\x00D\x00E\x00F\x00A\x00U\x00L\x00T\x00]\x00!\x001\x00:\x003\x004\x006\x001\x008\x006\x005\x002\x004\x009\x001\x002\x00:\x00w\x00e\x00b\x00:\x002\x00a\x003\x00b\x006\x009\x00e\x00d\x001\x00f\x004\x008\x00d\x00b\x009\x000\x005\x00d\x003\x00a\x003\x005' @ 270 : 1 .. (end); will stop at (end)
+2026/03/17-16:15:45.823 3ab Manual compaction at level-1 from (begin) .. (end); will stop at '\x00\x04\x01\x02\x01\x08\x00u\x00s\x00e\x00r\x00_\x00t\x00a\x00g' @ 196 : 1
+2026/03/17-16:15:45.823 3ab Compacting 1@1 + 1@2 files
+2026/03/17-16:15:45.824 3ab Generated table #15@1: 51 keys, 1746 bytes
+2026/03/17-16:15:45.824 3ab Compacted 1@1 + 1@2 files => 1746 bytes
+2026/03/17-16:15:45.824 3ab compacted to: files[ 0 0 1 0 0 0 0 ]
+2026/03/17-16:15:45.824 3ab Delete type=2 #5
+2026/03/17-16:15:45.824 3ab Delete type=2 #14
+2026/03/17-16:15:45.824 3ab Manual compaction at level-1 from '\x00\x04\x01\x02\x01\x08\x00u\x00s\x00e\x00r\x00_\x00t\x00a\x00g' @ 196 : 1 .. (end); will stop at (end)

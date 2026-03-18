@@ -1,0 +1,46 @@
+{
+  "query": "SELECT 'users' as tbl, COUNT(*) as cnt FROM users UNION ALL SELECT 'categories', COUNT(*) FROM categories UNION ALL SELECT 'leads', COUNT(*) FROM leads UNION ALL SELECT 'lead_pricing', COUNT(*) FROM lead_pricing UNION ALL SELECT 'orders', COUNT(*) FROM orders UNION ALL SELECT 'order_items', COUNT(*) FROM order_items UNION ALL SELECT 'favorites', COUNT(*) FROM favorites UNION ALL SELECT 'activity_log', COUNT(*) FROM activity_log UNION ALL SELECT 'upload_batches', COUNT(*) FROM upload_batches;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 211RzuNU5vXhCm8.645f79bcb929 --database o2whmyWEnyg2xHJMbHxmnn --execute SELECT 'users' as tbl, COUNT(*) as cnt FROM users UNION ALL SELECT 'categories', COUNT(*) FROM categories UNION ALL SELECT 'leads', COUNT(*) FROM leads UNION ALL SELECT 'lead_pricing', COUNT(*) FROM lead_pricing UNION ALL SELECT 'orders', COUNT(*) FROM orders UNION ALL SELECT 'order_items', COUNT(*) FROM order_items UNION ALL SELECT 'favorites', COUNT(*) FROM favorites UNION ALL SELECT 'activity_log', COUNT(*) FROM activity_log UNION ALL SELECT 'upload_batches', COUNT(*) FROM upload_batches;",
+  "rows": [
+    {
+      "tbl": "users",
+      "cnt": "4"
+    },
+    {
+      "tbl": "orders",
+      "cnt": "10"
+    },
+    {
+      "tbl": "lead_pricing",
+      "cnt": "16"
+    },
+    {
+      "tbl": "leads",
+      "cnt": "105"
+    },
+    {
+      "tbl": "categories",
+      "cnt": "5"
+    },
+    {
+      "tbl": "order_items",
+      "cnt": "10"
+    },
+    {
+      "tbl": "favorites",
+      "cnt": "0"
+    },
+    {
+      "tbl": "upload_batches",
+      "cnt": "7"
+    },
+    {
+      "tbl": "activity_log",
+      "cnt": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "tbl\tcnt\nusers\t4\norders\t10\nlead_pricing\t16\nleads\t105\ncategories\t5\norder_items\t10\nfavorites\t0\nupload_batches\t7\nactivity_log\t0\n",
+  "stderr": "",
+  "execution_time_ms": 89
+}

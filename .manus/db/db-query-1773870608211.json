@@ -1,0 +1,40 @@
+{
+  "query": "SHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 211RzuNU5vXhCm8.645f79bcb929 --database o2whmyWEnyg2xHJMbHxmnn --execute SHOW TABLES;",
+  "rows": [
+    {
+      "Tables_in_o2whmyWEnyg2xHJMbHxmnn": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_o2whmyWEnyg2xHJMbHxmnn": "activity_log"
+    },
+    {
+      "Tables_in_o2whmyWEnyg2xHJMbHxmnn": "categories"
+    },
+    {
+      "Tables_in_o2whmyWEnyg2xHJMbHxmnn": "favorites"
+    },
+    {
+      "Tables_in_o2whmyWEnyg2xHJMbHxmnn": "lead_pricing"
+    },
+    {
+      "Tables_in_o2whmyWEnyg2xHJMbHxmnn": "leads"
+    },
+    {
+      "Tables_in_o2whmyWEnyg2xHJMbHxmnn": "order_items"
+    },
+    {
+      "Tables_in_o2whmyWEnyg2xHJMbHxmnn": "orders"
+    },
+    {
+      "Tables_in_o2whmyWEnyg2xHJMbHxmnn": "upload_batches"
+    },
+    {
+      "Tables_in_o2whmyWEnyg2xHJMbHxmnn": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_o2whmyWEnyg2xHJMbHxmnn\n__drizzle_migrations\nactivity_log\ncategories\nfavorites\nlead_pricing\nleads\norder_items\norders\nupload_batches\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

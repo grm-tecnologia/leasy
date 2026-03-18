@@ -1,0 +1,6 @@
+2026/03/17-05:07:28.921 3aa Creating DB /home/ubuntu/.browser_data_dir/Default/WebStorage/5/IndexedDB/indexeddb.leveldb since it was missing.
+2026/03/17-05:07:28.923 3aa Reusing MANIFEST /home/ubuntu/.browser_data_dir/Default/WebStorage/5/IndexedDB/indexeddb.leveldb/MANIFEST-000001
+2026/03/17-05:07:28.926 3ad Level-0 table #5: started
+2026/03/17-05:07:28.927 3ad Level-0 table #5: 572 bytes OK
+2026/03/17-05:07:28.927 3ad Delete type=0 #3
+2026/03/17-05:07:28.928 3aa Manual compaction at level-0 from '\x00\x01\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x02\x00\x00\x00' @ 0 : 0; will stop at (end)

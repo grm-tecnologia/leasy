@@ -1,0 +1,122 @@
+{
+  "query": "SELECT lp.id, c.name as category, lp.minQuantity, lp.maxQuantity, lp.pricePerLeadCents FROM lead_pricing lp JOIN categories c ON c.id = lp.categoryId ORDER BY c.id, lp.minQuantity;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 211RzuNU5vXhCm8.645f79bcb929 --database o2whmyWEnyg2xHJMbHxmnn --execute SELECT lp.id, c.name as category, lp.minQuantity, lp.maxQuantity, lp.pricePerLeadCents FROM lead_pricing lp JOIN categories c ON c.id = lp.categoryId ORDER BY c.id, lp.minQuantity;",
+  "rows": [
+    {
+      "id": "1",
+      "category": "UGC (Creators & Marcas)",
+      "minQuantity": "1",
+      "maxQuantity": "100",
+      "pricePerLeadCents": "150"
+    },
+    {
+      "id": "2",
+      "category": "UGC (Creators & Marcas)",
+      "minQuantity": "101",
+      "maxQuantity": "500",
+      "pricePerLeadCents": "120"
+    },
+    {
+      "id": "3",
+      "category": "UGC (Creators & Marcas)",
+      "minQuantity": "501",
+      "maxQuantity": "NULL",
+      "pricePerLeadCents": "80"
+    },
+    {
+      "id": "4",
+      "category": "Processos Trabalhistas",
+      "minQuantity": "1",
+      "maxQuantity": "100",
+      "pricePerLeadCents": "200"
+    },
+    {
+      "id": "5",
+      "category": "Processos Trabalhistas",
+      "minQuantity": "101",
+      "maxQuantity": "500",
+      "pricePerLeadCents": "160"
+    },
+    {
+      "id": "6",
+      "category": "Processos Trabalhistas",
+      "minQuantity": "501",
+      "maxQuantity": "NULL",
+      "pricePerLeadCents": "100"
+    },
+    {
+      "id": "30001",
+      "category": "Agências de Marketing",
+      "minQuantity": "1",
+      "maxQuantity": "100",
+      "pricePerLeadCents": "180"
+    },
+    {
+      "id": "30004",
+      "category": "Agências de Marketing",
+      "minQuantity": "20",
+      "maxQuantity": "NULL",
+      "pricePerLeadCents": "90"
+    },
+    {
+      "id": "30002",
+      "category": "Agências de Marketing",
+      "minQuantity": "101",
+      "maxQuantity": "500",
+      "pricePerLeadCents": "140"
+    },
+    {
+      "id": "30003",
+      "category": "Agências de Marketing",
+      "minQuantity": "501",
+      "maxQuantity": "NULL",
+      "pricePerLeadCents": "90"
+    },
+    {
+      "id": "10",
+      "category": "Consórcios",
+      "minQuantity": "1",
+      "maxQuantity": "100",
+      "pricePerLeadCents": "170"
+    },
+    {
+      "id": "11",
+      "category": "Consórcios",
+      "minQuantity": "101",
+      "maxQuantity": "500",
+      "pricePerLeadCents": "130"
+    },
+    {
+      "id": "12",
+      "category": "Consórcios",
+      "minQuantity": "501",
+      "maxQuantity": "NULL",
+      "pricePerLeadCents": "85"
+    },
+    {
+      "id": "13",
+      "category": "Mercado Imobiliário",
+      "minQuantity": "1",
+      "maxQuantity": "100",
+      "pricePerLeadCents": "190"
+    },
+    {
+      "id": "14",
+      "category": "Mercado Imobiliário",
+      "minQuantity": "101",
+      "maxQuantity": "500",
+      "pricePerLeadCents": "150"
+    },
+    {
+      "id": "15",
+      "category": "Mercado Imobiliário",
+      "minQuantity": "501",
+      "maxQuantity": "NULL",
+      "pricePerLeadCents": "95"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcategory\tminQuantity\tmaxQuantity\tpricePerLeadCents\n1\tUGC (Creators & Marcas)\t1\t100\t150\n2\tUGC (Creators & Marcas)\t101\t500\t120\n3\tUGC (Creators & Marcas)\t501\tNULL\t80\n4\tProcessos Trabalhistas\t1\t100\t200\n5\tProcessos Trabalhistas\t101\t500\t160\n6\tProcessos Trabalhistas\t501\tNULL\t100\n30001\tAgências de Marketing\t1\t100\t180\n30004\tAgências de Marketing\t20\tNULL\t90\n30002\tAgências de Marketing\t101\t500\t140\n30003\tAgências de Marketing\t501\tNULL\t90\n10\tConsórcios\t1\t100\t170\n11\tConsórcios\t101\t500\t130\n12\tConsórcios\t501\tNULL\t85\n13\tMercado Imobiliário\t1\t100\t190\n14\tMercado Imobiliário\t101\t500\t150\n15\tMercado Imobiliário\t501\tNULL\t95\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

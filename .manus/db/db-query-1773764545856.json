@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, name, icon, color FROM categories;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 211RzuNU5vXhCm8.645f79bcb929 --database o2whmyWEnyg2xHJMbHxmnn --execute SELECT id, name, icon, color FROM categories;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "UGC (Creators & Marcas)",
+      "icon": "Users",
+      "color": "#8B5CF6"
+    },
+    {
+      "id": "2",
+      "name": "Processos Trabalhistas",
+      "icon": "Scale",
+      "color": "#EF4444"
+    },
+    {
+      "id": "3",
+      "name": "Agências de Marketing",
+      "icon": "Megaphone",
+      "color": "#F59E0B"
+    },
+    {
+      "id": "4",
+      "name": "Consórcios",
+      "icon": "Wallet",
+      "color": "#10B981"
+    },
+    {
+      "id": "5",
+      "name": "Mercado Imobiliário",
+      "icon": "Building",
+      "color": "#3B82F6"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\ticon\tcolor\n1\tUGC (Creators & Marcas)\tUsers\t#8B5CF6\n2\tProcessos Trabalhistas\tScale\t#EF4444\n3\tAgências de Marketing\tMegaphone\t#F59E0B\n4\tConsórcios\tWallet\t#10B981\n5\tMercado Imobiliário\tBuilding\t#3B82F6\n",
+  "stderr": "",
+  "execution_time_ms": 127
+}

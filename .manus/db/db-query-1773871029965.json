@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO lead_pricing (categoryId, minQuantity, maxQuantity, pricePerLeadCents, isActive) VALUES\n(1, 1, 49, 250, 1),\n(1, 50, 199, 180, 1),\n(1, 200, NULL, 120, 1),\n(2, 1, 49, 400, 1),\n(2, 50, 199, 300, 1),\n(2, 200, NULL, 200, 1),\n(3, 1, 49, 300, 1),\n(3, 50, 199, 220, 1),\n(3, 200, NULL, 150, 1),\n(4, 1, 49, 350, 1),\n(4, 50, 199, 260, 1),\n(4, 200, NULL, 180, 1),\n(5, 1, 49, 450, 1),\n(5, 50, 199, 350, 1),\n(5, 200, NULL, 250, 1);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 211RzuNU5vXhCm8.645f79bcb929 --database o2whmyWEnyg2xHJMbHxmnn --execute INSERT INTO lead_pricing (categoryId, minQuantity, maxQuantity, pricePerLeadCents, isActive) VALUES\n(1, 1, 49, 250, 1),\n(1, 50, 199, 180, 1),\n(1, 200, NULL, 120, 1),\n(2, 1, 49, 400, 1),\n(2, 50, 199, 300, 1),\n(2, 200, NULL, 200, 1),\n(3, 1, 49, 300, 1),\n(3, 50, 199, 220, 1),\n(3, 200, NULL, 150, 1),\n(4, 1, 49, 350, 1),\n(4, 50, 199, 260, 1),\n(4, 200, NULL, 180, 1),\n(5, 1, 49, 450, 1),\n(5, 50, 199, 350, 1),\n(5, 200, NULL, 250, 1);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 71
+}

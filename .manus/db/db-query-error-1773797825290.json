@@ -1,0 +1,8 @@
+{
+  "query": "select DATE_FORMAT(`createdAt`, '%Y-%m'), SUM(`totalCents`), COUNT(*) from `orders` where (`orders`.`userId` = 1 and `orders`.`status` = 'paid' and `orders`.`createdAt` >= DATE_SUB(NOW(), INTERVAL 6 MONTH)) group by DATE_FORMAT(`orders`.`createdAt`, '%Y-%m') order by DATE_FORMAT(`orders`.`createdAt`, '%Y-%m')",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 211RzuNU5vXhCm8.645f79bcb929 --database o2whmyWEnyg2xHJMbHxmnn --execute select DATE_FORMAT(`createdAt`, '%Y-%m'), SUM(`totalCents`), COUNT(*) from `orders` where (`orders`.`userId` = 1 and `orders`.`status` = 'paid' and `orders`.`createdAt` >= DATE_SUB(NOW(), INTERVAL 6 MONTH)) group by DATE_FORMAT(`orders`.`createdAt`, '%Y-%m') order by DATE_FORMAT(`orders`.`createdAt`, '%Y-%m')",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1055 (42000) at line 1: Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'o2whmyWEnyg2xHJMbHxmnn.orders.createdAt' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by"
+  ]
+}

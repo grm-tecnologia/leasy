@@ -1,0 +1,1 @@
+ALTER TABLE `categories` MODIFY COLUMN `fieldDefinitions` json;

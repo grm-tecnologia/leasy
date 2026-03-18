@@ -1,0 +1,54 @@
+{
+  "query": "SELECT * FROM users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 211RzuNU5vXhCm8.645f79bcb929 --database o2whmyWEnyg2xHJMbHxmnn --execute SELECT * FROM users;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "PYjLhQEhtwPfmXGS5irRJw",
+      "name": "Kaio Guerreiro",
+      "email": "kaioguerreiro1997@gmail.com",
+      "loginMethod": "google",
+      "role": "admin",
+      "createdAt": "2026-03-17 15:39:54",
+      "updatedAt": "2026-03-18 21:49:38",
+      "lastSignedIn": "2026-03-18 21:49:39"
+    },
+    {
+      "id": "120098",
+      "openId": "4RWoGziLPseyYWFfnERBKZ",
+      "name": "Yuri Renato",
+      "email": "yurirenato150220@gmail.com",
+      "loginMethod": "google",
+      "role": "admin",
+      "createdAt": "2026-03-17 22:35:11",
+      "updatedAt": "2026-03-18 01:26:10",
+      "lastSignedIn": "2026-03-17 22:44:47"
+    },
+    {
+      "id": "180009",
+      "openId": "Qz48eg2ZRBv5dDPCwNSWbS",
+      "name": "Mateus Romero dos Santos",
+      "email": "mateus.romerosantos@gmail.com",
+      "loginMethod": "google",
+      "role": "admin",
+      "createdAt": "2026-03-17 23:57:52",
+      "updatedAt": "2026-03-18 21:15:44",
+      "lastSignedIn": "2026-03-18 21:15:45"
+    },
+    {
+      "id": "210199",
+      "openId": "FzJA2eVkXr5JgiDtz6btQc",
+      "name": "leonardo silveira menezes",
+      "email": "silveira.menezes2013@gmail.com",
+      "loginMethod": "google",
+      "role": "user",
+      "createdAt": "2026-03-18 02:49:05",
+      "updatedAt": "2026-03-18 02:52:58",
+      "lastSignedIn": "2026-03-18 02:52:59"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\tloginMethod\trole\tcreatedAt\tupdatedAt\tlastSignedIn\n1\tPYjLhQEhtwPfmXGS5irRJw\tKaio Guerreiro\tkaioguerreiro1997@gmail.com\tgoogle\tadmin\t2026-03-17 15:39:54\t2026-03-18 21:49:38\t2026-03-18 21:49:39\n120098\t4RWoGziLPseyYWFfnERBKZ\tYuri Renato\tyurirenato150220@gmail.com\tgoogle\tadmin\t2026-03-17 22:35:11\t2026-03-18 01:26:10\t2026-03-17 22:44:47\n180009\tQz48eg2ZRBv5dDPCwNSWbS\tMateus Romero dos Santos\tmateus.romerosantos@gmail.com\tgoogle\tadmin\t2026-03-17 23:57:52\t2026-03-18 21:15:44\t2026-03-18 21:15:45\n210199\tFzJA2eVkXr5JgiDtz6btQc\tleonardo silveira menezes\tsilveira.menezes2013@gmail.com\tgoogle\tuser\t2026-03-18 02:49:05\t2026-03-18 02:52:58\t2026-03-18 02:52:59\n",
+  "stderr": "",
+  "execution_time_ms": 67
+}

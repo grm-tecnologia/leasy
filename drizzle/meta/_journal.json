@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1773728568458,
+      "tag": "0000_gifted_starfox",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1773728694436,
+      "tag": "0001_chief_hiroim",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1773728711351,
+      "tag": "0002_public_grey_gargoyle",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1773791988961,
+      "tag": "0003_complex_nehzno",
+      "breakpoints": true
+    }
+  ]
+}

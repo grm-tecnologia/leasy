@@ -1,0 +1,115 @@
+{
+  "query": "SELECT lp.id, c.name as category, lp.minQuantity, lp.maxQuantity, lp.pricePerLeadCents FROM lead_pricing lp JOIN categories c ON c.id = lp.categoryId ORDER BY c.id, lp.minQuantity;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 211RzuNU5vXhCm8.645f79bcb929 --database o2whmyWEnyg2xHJMbHxmnn --execute SELECT lp.id, c.name as category, lp.minQuantity, lp.maxQuantity, lp.pricePerLeadCents FROM lead_pricing lp JOIN categories c ON c.id = lp.categoryId ORDER BY c.id, lp.minQuantity;",
+  "rows": [
+    {
+      "id": "60001",
+      "category": "UGC (Creators & Marcas)",
+      "minQuantity": "1",
+      "maxQuantity": "49",
+      "pricePerLeadCents": "250"
+    },
+    {
+      "id": "60002",
+      "category": "UGC (Creators & Marcas)",
+      "minQuantity": "50",
+      "maxQuantity": "199",
+      "pricePerLeadCents": "180"
+    },
+    {
+      "id": "60003",
+      "category": "UGC (Creators & Marcas)",
+      "minQuantity": "200",
+      "maxQuantity": "NULL",
+      "pricePerLeadCents": "120"
+    },
+    {
+      "id": "60004",
+      "category": "Processos Trabalhistas",
+      "minQuantity": "1",
+      "maxQuantity": "49",
+      "pricePerLeadCents": "400"
+    },
+    {
+      "id": "60005",
+      "category": "Processos Trabalhistas",
+      "minQuantity": "50",
+      "maxQuantity": "199",
+      "pricePerLeadCents": "300"
+    },
+    {
+      "id": "60006",
+      "category": "Processos Trabalhistas",
+      "minQuantity": "200",
+      "maxQuantity": "NULL",
+      "pricePerLeadCents": "200"
+    },
+    {
+      "id": "60007",
+      "category": "Agências de Marketing",
+      "minQuantity": "1",
+      "maxQuantity": "49",
+      "pricePerLeadCents": "300"
+    },
+    {
+      "id": "60008",
+      "category": "Agências de Marketing",
+      "minQuantity": "50",
+      "maxQuantity": "199",
+      "pricePerLeadCents": "220"
+    },
+    {
+      "id": "60009",
+      "category": "Agências de Marketing",
+      "minQuantity": "200",
+      "maxQuantity": "NULL",
+      "pricePerLeadCents": "150"
+    },
+    {
+      "id": "60010",
+      "category": "Consórcios",
+      "minQuantity": "1",
+      "maxQuantity": "49",
+      "pricePerLeadCents": "350"
+    },
+    {
+      "id": "60011",
+      "category": "Consórcios",
+      "minQuantity": "50",
+      "maxQuantity": "199",
+      "pricePerLeadCents": "260"
+    },
+    {
+      "id": "60012",
+      "category": "Consórcios",
+      "minQuantity": "200",
+      "maxQuantity": "NULL",
+      "pricePerLeadCents": "180"
+    },
+    {
+      "id": "60013",
+      "category": "Mercado Imobiliário",
+      "minQuantity": "1",
+      "maxQuantity": "49",
+      "pricePerLeadCents": "450"
+    },
+    {
+      "id": "60014",
+      "category": "Mercado Imobiliário",
+      "minQuantity": "50",
+      "maxQuantity": "199",
+      "pricePerLeadCents": "350"
+    },
+    {
+      "id": "60015",
+      "category": "Mercado Imobiliário",
+      "minQuantity": "200",
+      "maxQuantity": "NULL",
+      "pricePerLeadCents": "250"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcategory\tminQuantity\tmaxQuantity\tpricePerLeadCents\n60001\tUGC (Creators & Marcas)\t1\t49\t250\n60002\tUGC (Creators & Marcas)\t50\t199\t180\n60003\tUGC (Creators & Marcas)\t200\tNULL\t120\n60004\tProcessos Trabalhistas\t1\t49\t400\n60005\tProcessos Trabalhistas\t50\t199\t300\n60006\tProcessos Trabalhistas\t200\tNULL\t200\n60007\tAgências de Marketing\t1\t49\t300\n60008\tAgências de Marketing\t50\t199\t220\n60009\tAgências de Marketing\t200\tNULL\t150\n60010\tConsórcios\t1\t49\t350\n60011\tConsórcios\t50\t199\t260\n60012\tConsórcios\t200\tNULL\t180\n60013\tMercado Imobiliário\t1\t49\t450\n60014\tMercado Imobiliário\t50\t199\t350\n60015\tMercado Imobiliário\t200\tNULL\t250\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}

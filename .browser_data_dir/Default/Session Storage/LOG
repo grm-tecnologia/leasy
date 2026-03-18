@@ -1,0 +1,5 @@
+2026/03/16-09:05:22.230 4 Creating DB /home/ubuntu/.browser_data_dir/Default/Session Storage since it was missing.
+2026/03/16-09:05:22.234 4 Reusing MANIFEST /home/ubuntu/.browser_data_dir/Default/Session Storage/MANIFEST-000001
+2026/03/18-21:55:58.205 5 Level-0 table #5: started
+2026/03/18-21:55:58.209 5 Level-0 table #5: 30607 bytes OK
+2026/03/18-21:55:58.211 5 Delete type=0 #3

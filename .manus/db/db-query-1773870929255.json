@@ -1,0 +1,35 @@
+{
+  "query": "SELECT l.id, c.name, l.data FROM leads l JOIN categories c ON c.id = l.categoryId LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 211RzuNU5vXhCm8.645f79bcb929 --database o2whmyWEnyg2xHJMbHxmnn --execute SELECT l.id, c.name, l.data FROM leads l JOIN categories c ON c.id = l.categoryId LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Agências de Marketing",
+      "data": "{\"cidade\": \"São Paulo\", \"email\": \"marcos@criativadigital.com.br\", \"especialidade\": \"Marketing Digital\", \"estado\": \"SP\", \"faturamento_estimado\": \"R$ 2.500.000\", \"nome\": \"Agência Criativa Digital\", \"numero_de_clientes\": \"45\", \"porte\": \"Médio\", \"responsavel\": \"Marcos Oliveira\", \"site\": \"criativadigital.com.br\", \"telefone\": \"(11) 99876-5432\"}"
+    },
+    {
+      "id": "2",
+      "name": "Agências de Marketing",
+      "data": "{\"cidade\": \"Rio de Janeiro\", \"email\": \"fernanda@impulsomarketing.com.br\", \"especialidade\": \"Social Media\", \"estado\": \"RJ\", \"faturamento_estimado\": \"R$ 800.000\", \"nome\": \"Impulso Marketing\", \"numero_de_clientes\": \"18\", \"porte\": \"Pequeno\", \"responsavel\": \"Fernanda Lima\", \"site\": \"impulsomarketing.com.br\", \"telefone\": \"(21) 98765-4321\"}"
+    },
+    {
+      "id": "3",
+      "name": "Agências de Marketing",
+      "data": "{\"cidade\": \"Belo Horizonte\", \"email\": \"ricardo@conectamidia.com.br\", \"especialidade\": \"Performance\", \"estado\": \"MG\", \"faturamento_estimado\": \"R$ 8.000.000\", \"nome\": \"Conecta Mídia\", \"numero_de_clientes\": \"120\", \"porte\": \"Grande\", \"responsavel\": \"Ricardo Santos\", \"site\": \"conectamidia.com.br\", \"telefone\": \"(31) 97654-3210\"}"
+    },
+    {
+      "id": "4",
+      "name": "Agências de Marketing",
+      "data": "{\"cidade\": \"Curitiba\", \"email\": \"juliana@pixelperfeito.com.br\", \"especialidade\": \"Branding\", \"estado\": \"PR\", \"faturamento_estimado\": \"R$ 450.000\", \"nome\": \"Pixel Perfeito\", \"numero_de_clientes\": \"12\", \"porte\": \"Pequeno\", \"responsavel\": \"Juliana Costa\", \"site\": \"pixelperfeito.com.br\", \"telefone\": \"(41) 96543-2109\"}"
+    },
+    {
+      "id": "5",
+      "name": "Agências de Marketing",
+      "data": "{\"cidade\": \"Porto Alegre\", \"email\": \"pedro@estrategiasul.com.br\", \"especialidade\": \"Inbound Marketing\", \"estado\": \"RS\", \"faturamento_estimado\": \"R$ 1.800.000\", \"nome\": \"Estratégia Sul\", \"numero_de_clientes\": \"35\", \"porte\": \"Médio\", \"responsavel\": \"Pedro Almeida\", \"site\": \"estrategiasul.com.br\", \"telefone\": \"(51) 95432-1098\"}"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tdata\n1\tAgências de Marketing\t{\"cidade\": \"São Paulo\", \"email\": \"marcos@criativadigital.com.br\", \"especialidade\": \"Marketing Digital\", \"estado\": \"SP\", \"faturamento_estimado\": \"R$ 2.500.000\", \"nome\": \"Agência Criativa Digital\", \"numero_de_clientes\": \"45\", \"porte\": \"Médio\", \"responsavel\": \"Marcos Oliveira\", \"site\": \"criativadigital.com.br\", \"telefone\": \"(11) 99876-5432\"}\n2\tAgências de Marketing\t{\"cidade\": \"Rio de Janeiro\", \"email\": \"fernanda@impulsomarketing.com.br\", \"especialidade\": \"Social Media\", \"estado\": \"RJ\", \"faturamento_estimado\": \"R$ 800.000\", \"nome\": \"Impulso Marketing\", \"numero_de_clientes\": \"18\", \"porte\": \"Pequeno\", \"responsavel\": \"Fernanda Lima\", \"site\": \"impulsomarketing.com.br\", \"telefone\": \"(21) 98765-4321\"}\n3\tAgências de Marketing\t{\"cidade\": \"Belo Horizonte\", \"email\": \"ricardo@conectamidia.com.br\", \"especialidade\": \"Performance\", \"estado\": \"MG\", \"faturamento_estimado\": \"R$ 8.000.000\", \"nome\": \"Conecta Mídia\", \"numero_de_clientes\": \"120\", \"porte\": \"Grande\", \"responsavel\": \"Ricardo Santos\", \"site\": \"conectamidia.com.br\", \"telefone\": \"(31) 97654-3210\"}\n4\tAgências de Marketing\t{\"cidade\": \"Curitiba\", \"email\": \"juliana@pixelperfeito.com.br\", \"especialidade\": \"Branding\", \"estado\": \"PR\", \"faturamento_estimado\": \"R$ 450.000\", \"nome\": \"Pixel Perfeito\", \"numero_de_clientes\": \"12\", \"porte\": \"Pequeno\", \"responsavel\": \"Juliana Costa\", \"site\": \"pixelperfeito.com.br\", \"telefone\": \"(41) 96543-2109\"}\n5\tAgências de Marketing\t{\"cidade\": \"Porto Alegre\", \"email\": \"pedro@estrategiasul.com.br\", \"especialidade\": \"Inbound Marketing\", \"estado\": \"RS\", \"faturamento_estimado\": \"R$ 1.800.000\", \"nome\": \"Estratégia Sul\", \"numero_de_clientes\": \"35\", \"porte\": \"Médio\", \"responsavel\": \"Pedro Almeida\", \"site\": \"estrategiasul.com.br\", \"telefone\": \"(51) 95432-1098\"}\n",
+  "stderr": "",
+  "execution_time_ms": 64
+}
