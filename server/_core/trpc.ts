@@ -43,3 +43,23 @@ export const adminProcedure = t.procedure.use(
     });
   }),
 );
+
+export const ownerProcedure = t.procedure.use(
+  t.middleware(async opts => {
+    const { ctx, next } = opts;
+    if (!ctx.user || ctx.user.role !== 'admin') {
+      throw new TRPCError({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
+    }
+    const adminEmail = process.env.ADMIN_EMAIL ?? "";
+    if (!adminEmail || ctx.user.email !== adminEmail) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "Apenas o proprietário do sistema pode realizar esta ação." });
+    }
+    return next({
+      ctx: {
+        ...ctx,
+        user: ctx.user,
+      },
+    });
+  }),
+);
+

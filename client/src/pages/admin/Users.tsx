@@ -39,14 +39,21 @@ export default function AdminUsers() {
 
   const totalPages = Math.ceil((data?.total ?? 0) / pageSize);
 
+  const isOwner = !!(currentUser as any)?.isOwner;
+
   const handleRoleChange = async (userId: number, newRole: "user" | "admin") => {
     try {
       await updateRole.mutateAsync({ userId, role: newRole });
       toast.success(`Permissão atualizada para ${roleMap[newRole].label}`);
-      utils.users.list.invalidate();
-      utils.users.stats.invalidate();
+      await utils.users.list.invalidate();
+      await utils.users.stats.invalidate();
     } catch (err: any) {
-      toast.error(err.message ?? "Erro ao atualizar permissão");
+      const msg = err?.message ?? "Erro ao atualizar permissão";
+      if (msg.includes("proprietário")) {
+        toast.error("Apenas o proprietário do sistema pode alterar permissões.");
+      } else {
+        toast.error(msg);
+      }
     }
   };
 
@@ -180,7 +187,7 @@ export default function AdminUsers() {
                               {roleInfo.label}
                               <span className="text-zinc-600 ml-1">(você)</span>
                             </span>
-                          ) : (
+                          ) : isOwner ? (
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <button
@@ -211,6 +218,14 @@ export default function AdminUsers() {
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
+                          ) : (
+                            <span
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest rounded-full"
+                              style={{ backgroundColor: `${roleInfo.color}15`, color: roleInfo.color }}
+                            >
+                              <roleInfo.icon className="h-3 w-3" />
+                              {roleInfo.label}
+                            </span>
                           )}
                         </td>
                         <td className="p-4 text-right text-zinc-600 text-[10px] font-mono tracking-widest">

@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router, protectedProcedure, adminProcedure } from "./_core/trpc";
+import { publicProcedure, router, protectedProcedure, adminProcedure, ownerProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { nanoid } from "nanoid";
@@ -33,7 +33,14 @@ export const appRouter = router({
   system: systemRouter,
 
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.query(opts => {
+      if (!opts.ctx.user) return null;
+      const adminEmail = process.env.ADMIN_EMAIL ?? "";
+      return {
+        ...opts.ctx.user,
+        isOwner: !!(adminEmail && opts.ctx.user.email === adminEmail),
+      };
+    }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, cookieOptions);
@@ -764,7 +771,7 @@ Regras:
       return getUserById(input.id);
     }),
 
-    updateRole: adminProcedure.input(z.object({
+    updateRole: ownerProcedure.input(z.object({
       userId: z.number(),
       role: z.enum(["user", "admin"]),
     })).mutation(async ({ ctx, input }) => {
