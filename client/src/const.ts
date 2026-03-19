@@ -7,5 +7,5 @@ export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 export const getLoginUrl = (returnPath?: string) => {
   const path = returnPath || "/";
   const origin = window.location.origin;
-  return `/api/auth/google?returnPath=${encodeURIComponent(path)}&origin=${encodeURIComponent(origin)}`;
+  return `/api/oauth/google?returnPath=${encodeURIComponent(path)}&origin=${encodeURIComponent(origin)}`;
 };

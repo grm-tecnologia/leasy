@@ -28,26 +28,26 @@ function buildGoogleAuthUrl(redirectUri: string, state: string): string {
 
 export function registerOAuthRoutes(app: Express) {
   /**
-   * GET /api/auth/google
+   * GET /api/oauth/google
    * Initiates Google OAuth flow. Frontend redirects here.
    * Query params:
    *   - returnPath (optional): where to redirect after login
    */
-  app.get("/api/auth/google", (req: Request, res: Response) => {
+  app.get("/api/oauth/google", (req: Request, res: Response) => {
     const returnPath = getQueryParam(req, "returnPath") || "/";
     const origin = getQueryParam(req, "origin") || ENV.appUrl;
-    const redirectUri = `${origin}/api/auth/google/callback`;
+    const redirectUri = `${origin}/api/oauth/google/callback`;
     const state = Buffer.from(JSON.stringify({ returnPath, origin })).toString("base64url");
     const authUrl = buildGoogleAuthUrl(redirectUri, state);
     res.redirect(302, authUrl);
   });
 
   /**
-   * GET /api/auth/google/callback
+   * GET /api/oauth/google/callback
    * Google redirects here after user authorizes.
    * Exchanges code for tokens, creates/updates user, sets session cookie.
    */
-  app.get("/api/auth/google/callback", async (req: Request, res: Response) => {
+  app.get("/api/oauth/google/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
     const stateParam = getQueryParam(req, "state");
 
@@ -69,16 +69,29 @@ export function registerOAuthRoutes(app: Express) {
       }
     }
 
-    const redirectUri = `${origin}/api/auth/google/callback`;
+    const redirectUri = `${origin}/api/oauth/google/callback`;
 
     try {
       const googleUser = await sdk.exchangeGoogleCode(code, redirectUri);
 
-      // Check if user already exists
-      const existingUser = await db.getUserByOpenId(googleUser.openId);
-      const isNewUser = !existingUser;
+      // Step 1: Check if user already exists by Google openId
+      let existingUser = await db.getUserByOpenId(googleUser.openId);
+      let isNewUser = !existingUser;
 
-      // Upsert user in database
+      // Step 2: Migration - if no user found by Google openId, check by email
+      // This handles users who previously logged in via Manus OAuth and now
+      // use Google OAuth for the first time
+      if (!existingUser && googleUser.email) {
+        const emailUser = await db.getUserByEmail(googleUser.email);
+        if (emailUser) {
+          console.log('[OAuth] Migrating user ' + emailUser.email + ' from old openId ' + emailUser.openId + ' to ' + googleUser.openId);
+          await db.updateUserOpenId(emailUser.openId, googleUser.openId);
+          existingUser = { ...emailUser, openId: googleUser.openId };
+          isNewUser = false;
+        }
+      }
+
+      // Step 3: Upsert user in database
       await db.upsertUser({
         openId: googleUser.openId,
         name: googleUser.name || null,
@@ -113,6 +126,6 @@ export function registerOAuthRoutes(app: Express) {
 
   // Legacy route compatibility - redirect old Manus OAuth callback to new flow
   app.get("/api/oauth/callback", (_req: Request, res: Response) => {
-    res.redirect(302, "/api/auth/google");
+    res.redirect(302, "/api/oauth/google");
   });
 }
