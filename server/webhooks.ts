@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import type { Express, Request, Response } from "express";
 import { getPayment } from "./mercadopago";
 import { getOrderById, updateOrder, getOrderItems, getCategoryById, getLeadsForCategory, getUserById } from "./db";
@@ -113,6 +114,51 @@ export async function processOrderPayment(orderId: number, paymentId: string, pa
   return true;
 }
 
+
+/**
+ * Verify Mercado Pago webhook signature.
+ * Returns true if signature is valid or if no secret is configured (graceful degradation).
+ */
+function verifyWebhookSignature(req: Request): boolean {
+  const webhookSecret = process.env.MP_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    // No secret configured, skip verification (log warning)
+    console.warn("[Webhook] MP_WEBHOOK_SECRET not configured, skipping signature verification");
+    return true;
+  }
+
+  const xSignature = req.headers["x-signature"] as string;
+  const xRequestId = req.headers["x-request-id"] as string;
+  
+  if (!xSignature || !xRequestId) {
+    console.warn("[Webhook] Missing x-signature or x-request-id headers");
+    return false;
+  }
+
+  // Parse x-signature header: "ts=...,v1=..."
+  const parts: Record<string, string> = {};
+  xSignature.split(",").forEach(part => {
+    const [key, value] = part.split("=", 2);
+    if (key && value) parts[key.trim()] = value.trim();
+  });
+
+  const ts = parts["ts"];
+  const v1 = parts["v1"];
+  if (!ts || !v1) {
+    console.warn("[Webhook] Invalid x-signature format");
+    return false;
+  }
+
+  // Build the manifest string
+  const dataId = req.query["data.id"] || (req.body?.data?.id ?? "");
+  const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
+  
+  // Generate HMAC
+  const hmac = crypto.createHmac("sha256", webhookSecret).update(manifest).digest("hex");
+  
+  return hmac === v1;
+}
+
 /**
  * Register Mercado Pago webhook route on the Express app.
  */
@@ -120,6 +166,13 @@ export function registerWebhooks(app: Express) {
   // Mercado Pago IPN/Webhook
   app.post("/api/webhooks/mercadopago", async (req: Request, res: Response) => {
     try {
+      // Verify webhook signature
+      if (!verifyWebhookSignature(req)) {
+        console.warn("[Webhook] Invalid signature, rejecting");
+        res.status(401).json({ error: "Invalid signature" });
+        return;
+      }
+
       const { type, data } = req.body;
 
       // Mercado Pago sends different notification types

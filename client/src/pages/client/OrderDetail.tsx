@@ -255,7 +255,7 @@ function OrderItemRow({ item, order }: { item: any; order: any }) {
     <div className="p-5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-white">Categoria #{item.categoryId}</p>
+          <p className="text-sm font-medium text-white">{item.categoryName || `Categoria #${item.categoryId}`}</p>
           <div className="flex items-center gap-2 mt-1.5">
             <span className="text-[10px] font-mono text-[#FF4500] uppercase tracking-widest">
               {item.leadCount.toLocaleString("pt-BR")} leads

@@ -354,7 +354,7 @@ export function registerSecurityMiddleware(app: Express) {
   app.use("/api/trpc", apiLimiter);
 
   // Stricter rate limiting on auth routes
-  app.use("/api/auth", authLimiter);
+  app.use("/api/oauth", authLimiter);
 
   // Webhook rate limiting
   app.use("/api/webhooks", webhookLimiter);

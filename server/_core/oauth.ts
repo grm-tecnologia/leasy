@@ -46,6 +46,11 @@ export function registerOAuthRoutes(app: Express) {
    * GET /api/oauth/google/callback
    * Google redirects here after user authorizes.
    * Exchanges code for tokens, creates/updates user, sets session cookie.
+   *
+   * MIGRATION LOGIC: When a user logs in with Google and no user is found
+   * by the Google openId, we check if a user with the same email already exists
+   * (from the old Manus OAuth). If found, we update their openId to the new
+   * Google openId, preserving their data, role, and permissions.
    */
   app.get("/api/oauth/google/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
@@ -84,7 +89,7 @@ export function registerOAuthRoutes(app: Express) {
       if (!existingUser && googleUser.email) {
         const emailUser = await db.getUserByEmail(googleUser.email);
         if (emailUser) {
-          console.log('[OAuth] Migrating user ' + emailUser.email + ' from old openId ' + emailUser.openId + ' to ' + googleUser.openId);
+          console.log("[OAuth] Migrating user " + emailUser.email + " from old openId " + emailUser.openId + " to " + googleUser.openId);
           await db.updateUserOpenId(emailUser.openId, googleUser.openId);
           existingUser = { ...emailUser, openId: googleUser.openId };
           isNewUser = false;
@@ -100,7 +105,7 @@ export function registerOAuthRoutes(app: Express) {
         lastSignedIn: new Date(),
       });
 
-      // Send welcome email for new users
+      // Send welcome email for new users only
       if (isNewUser && googleUser.email) {
         sendWelcomeEmail(googleUser.email, googleUser.name || "").catch(err => {
           console.warn("[OAuth] Failed to send welcome email:", err);

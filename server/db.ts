@@ -394,7 +394,21 @@ export async function createOrderItems(items: InsertOrderItem[]) {
 export async function getOrderItems(orderId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+  const rows = await db.select({
+    id: orderItems.id,
+    orderId: orderItems.orderId,
+    categoryId: orderItems.categoryId,
+    categoryName: categories.name,
+    filters: orderItems.filters,
+    leadCount: orderItems.leadCount,
+    priceCents: orderItems.priceCents,
+    downloadUrl: orderItems.downloadUrl,
+    downloadKey: orderItems.downloadKey,
+    createdAt: orderItems.createdAt,
+  }).from(orderItems)
+    .leftJoin(categories, eq(orderItems.categoryId, categories.id))
+    .where(eq(orderItems.orderId, orderId));
+  return rows;
 }
 
 // ─── Lead Pricing ────────────────────────────────────────────────────
