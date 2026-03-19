@@ -36,10 +36,12 @@ export const appRouter = router({
     me: publicProcedure.query(opts => {
       if (!opts.ctx.user) return null;
       const adminEmail = process.env.ADMIN_EMAIL ?? "";
-      return {
+      const result = {
         ...opts.ctx.user,
         isOwner: !!(adminEmail && opts.ctx.user.email === adminEmail),
       };
+      // Debug log removed for production
+      return result;
     }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
@@ -598,6 +600,24 @@ Regras:
         leadCount: z.number().min(1),
       })),
     })).mutation(async ({ ctx, input }) => {
+      // Validate lead availability before creating order
+      for (const item of input.items) {
+        const available = await countLeadsForFilter(item.categoryId, item.filters ?? {});
+        if (available === 0) {
+          const cat = await getCategoryById(item.categoryId);
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Não há leads disponíveis na categoria "${cat?.name ?? "desconhecida"}". Aguarde novos leads serem adicionados.`,
+          });
+        }
+        if (item.leadCount > available) {
+          const cat = await getCategoryById(item.categoryId);
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Quantidade solicitada (${item.leadCount}) excede os leads disponíveis (${available}) na categoria "${cat?.name ?? "desconhecida"}".`,
+          });
+        }
+      }
       // Calculate total price
       let totalCents = 0;
       const itemsWithPrice = [];
@@ -639,11 +659,11 @@ Regras:
           })),
           externalReference: String(orderId),
           backUrls: {
-            success: `${ctx.req.headers.origin ?? ""}/orders/${orderId}`,
-            failure: `${ctx.req.headers.origin ?? ""}/orders/${orderId}`,
-            pending: `${ctx.req.headers.origin ?? ""}/orders/${orderId}`,
+            success: `${ctx.req.headers.origin || "https://leasy.app.br"}/orders/${orderId}`,
+            failure: `${ctx.req.headers.origin || "https://leasy.app.br"}/orders/${orderId}`,
+            pending: `${ctx.req.headers.origin || "https://leasy.app.br"}/orders/${orderId}`,
           },
-          notificationUrl: `${ctx.req.headers.origin ?? ""}/api/webhooks/mercadopago`,
+          notificationUrl: `${ctx.req.headers.origin || "https://leasy.app.br"}/api/webhooks/mercadopago`,
         });
         paymentUrl = preference.init_point || preference.sandbox_init_point;
         await updateOrder(orderId, { paymentUrl, paymentId: preference.id });

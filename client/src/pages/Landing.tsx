@@ -151,7 +151,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ Features Section ═══ */}
-      <section className="relative border-b border-white/10">
+      <section id="como-funciona" className="relative border-b border-white/10">
         <header className="absolute top-0 left-0 w-full h-12 border-b border-white/10 flex items-center px-6 lg:px-12 z-30 bg-[#0F0F0F]/80 backdrop-blur-sm">
           <div className="font-mono text-[10px] text-zinc-500 uppercase tracking-widest flex items-center gap-3">
             <span className="w-2 h-2 rounded-full bg-white/20" />
@@ -331,14 +331,14 @@ export default function Landing() {
           <div className="flex gap-12 md:gap-24 font-light">
             <div className="flex flex-col gap-4">
               <span className="text-[10px] text-[#FF4500] font-mono tracking-widest uppercase mb-2">Produto</span>
-              <span className="text-sm text-zinc-400 hover:text-white transition-colors duration-300 cursor-pointer">Categorias</span>
-              <span className="text-sm text-zinc-400 hover:text-white transition-colors duration-300 cursor-pointer">Filtros</span>
-              <span className="text-sm text-zinc-400 hover:text-white transition-colors duration-300 cursor-pointer">Preços</span>
+              <span onClick={() => document.getElementById("categorias")?.scrollIntoView({ behavior: "smooth" })} className="text-sm text-zinc-400 hover:text-white transition-colors duration-300 cursor-pointer">Categorias</span>
+              <span onClick={() => document.getElementById("como-funciona")?.scrollIntoView({ behavior: "smooth" })} className="text-sm text-zinc-400 hover:text-white transition-colors duration-300 cursor-pointer">Como Funciona</span>
+              <span onClick={() => setLocation("/login")} className="text-sm text-zinc-400 hover:text-white transition-colors duration-300 cursor-pointer">Começar Agora</span>
             </div>
             <div className="flex flex-col gap-4">
               <span className="text-[10px] text-[#FF4500] font-mono tracking-widest uppercase mb-2">Suporte</span>
-              <span className="text-sm text-zinc-400 hover:text-white transition-colors duration-300 cursor-pointer">FAQ</span>
-              <span className="text-sm text-zinc-400 hover:text-white transition-colors duration-300 cursor-pointer">Contato</span>
+              <a href="/termos" className="text-sm text-zinc-400 hover:text-white transition-colors duration-300 cursor-pointer">Termos de Uso</a>
+              <a href="/privacidade" className="text-sm text-zinc-400 hover:text-white transition-colors duration-300 cursor-pointer">Privacidade</a>
               <span className="text-sm text-zinc-400 hover:text-white transition-colors duration-300 cursor-pointer">Termos</span>
             </div>
           </div>

@@ -183,7 +183,7 @@ export default function CategoryDetail() {
                     value={quantity}
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                     min={1}
-                    max={leadCount ?? 9999}
+                    max={leadCount && leadCount > 0 ? leadCount : 1}
                     className="w-full px-3 py-2 bg-[#0F0F0F] border border-white/10 text-sm text-white focus:outline-none focus:border-[#FF4500]/50 transition-colors"
                   />
                   <p className="text-[10px] font-mono text-zinc-600 mt-1 tracking-widest">
