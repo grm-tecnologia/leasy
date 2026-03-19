@@ -780,6 +780,7 @@ Regras:
         throw new TRPCError({ code: "BAD_REQUEST", message: "Você não pode alterar seu próprio papel." });
       }
       await updateUserRole(input.userId, input.role);
+      console.log(`[Permissions] User ${ctx.user.email} changed user #${input.userId} role to ${input.role}`);
       return { success: true };
     }),
 
