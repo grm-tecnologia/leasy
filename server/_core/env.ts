@@ -30,6 +30,9 @@ export const ENV = {
   s3AccessKey: process.env.S3_ACCESS_KEY ?? "",
   s3SecretKey: process.env.S3_SECRET_KEY ?? "",
 
+  // Redis (for BullMQ background jobs)
+  redisUrl: process.env.REDIS_URL ?? "redis://127.0.0.1:6379",
+
   // Legacy compat (used in db.ts for admin auto-promotion)
   ownerOpenId: process.env.OWNER_OPEN_ID ?? "",
 };

@@ -6,6 +6,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerSecurityMiddleware } from "../security";
 import { registerWebhooks } from "../webhooks";
+import { startLeadProcessingWorker, shutdownQueue } from "../queue";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -63,9 +64,26 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
+  // Start background job worker (graceful: logs warning if Redis unavailable)
+  try {
+    startLeadProcessingWorker();
+  } catch (err) {
+    console.warn("[Server] BullMQ worker not started (Redis may be unavailable):", err);
+  }
+
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });
+
+  // Graceful shutdown
+  const shutdown = async () => {
+    console.log("[Server] Shutting down...");
+    await shutdownQueue();
+    server.close();
+    process.exit(0);
+  };
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
 }
 
 startServer().catch(console.error);

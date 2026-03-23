@@ -8,8 +8,29 @@ import { nanoid } from "nanoid";
 import type { FieldDefinition } from "../drizzle/schema";
 
 /**
+ * Check if a payment_provider_id has already been processed (idempotency guard).
+ * Returns true if the payment was already recorded in the database.
+ */
+async function isPaymentAlreadyProcessed(paymentProviderId: string): Promise<boolean> {
+  const { getDb } = await import("./db");
+  const db = await getDb();
+  if (!db) return false;
+  const { orders } = await import("../drizzle/schema");
+  const { eq } = await import("drizzle-orm");
+  const existing = await db.select({ id: orders.id })
+    .from(orders)
+    .where(eq(orders.paymentProviderId, paymentProviderId))
+    .limit(1);
+  return existing.length > 0;
+}
+
+/**
  * Process a paid order: generate CSV downloads and notify owner.
  * Extracted so it can be called from both webhook and manual confirmation.
+ *
+ * Idempotency: checks paymentProviderId before processing.
+ * The entire status update + paymentProviderId write happens in a single query
+ * protected by the UNIQUE constraint on paymentProviderId.
  */
 export async function processOrderPayment(orderId: number, paymentId: string, paymentDetails?: Record<string, unknown>) {
   const order = await getOrderById(orderId);
@@ -18,18 +39,50 @@ export async function processOrderPayment(orderId: number, paymentId: string, pa
     return false;
   }
 
-  // Skip if already paid
+  // Skip if already paid (quick check)
   if (order.status === "paid") {
     console.log(`[Webhook] Order ${orderId} already paid, skipping`);
     return true;
   }
 
-  // Update order status
-  await updateOrder(orderId, {
-    status: "paid",
-    paymentId,
-    paymentDetails: paymentDetails ?? {},
-  });
+  // Idempotency: check if this payment_id was already processed for any order
+  const paymentProviderId = String(paymentId);
+  if (await isPaymentAlreadyProcessed(paymentProviderId)) {
+    console.log(`[Webhook] Payment ${paymentProviderId} already processed, skipping (idempotent)`);
+    return true;
+  }
+
+  // Update order status atomically with paymentProviderId (UNIQUE constraint prevents duplicates)
+  try {
+    const { getDb } = await import("./db");
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    const { orders: ordersTable } = await import("../drizzle/schema");
+    const { eq, and } = await import("drizzle-orm");
+
+    // Only update if still pending — atomic check-and-set
+    const result = await db.update(ordersTable)
+      .set({
+        status: "paid",
+        paymentId,
+        paymentProviderId,
+        paymentDetails: paymentDetails ?? {},
+      })
+      .where(and(eq(ordersTable.id, orderId), eq(ordersTable.status, "pending")));
+
+    // If no rows were updated, the order was already processed (race condition guard)
+    if ((result as any)[0]?.affectedRows === 0) {
+      console.log(`[Webhook] Order ${orderId} was already processed (race condition), skipping`);
+      return true;
+    }
+  } catch (err: any) {
+    // Duplicate key error on paymentProviderId = idempotent duplicate
+    if (err?.code === "ER_DUP_ENTRY" || err?.message?.includes("Duplicate entry")) {
+      console.log(`[Webhook] Duplicate paymentProviderId ${paymentProviderId}, skipping (idempotent)`);
+      return true;
+    }
+    throw err;
+  }
 
   // Generate download files for each order item
   const items = await getOrderItems(orderId);
@@ -202,7 +255,7 @@ export function registerWebhooks(app: Express) {
         }
       }
 
-      // Always respond 200 to Mercado Pago
+      // Always respond 200 to Mercado Pago (idempotent — duplicates are handled gracefully)
       res.status(200).json({ received: true });
     } catch (err) {
       console.error("[Webhook] Error processing:", err);

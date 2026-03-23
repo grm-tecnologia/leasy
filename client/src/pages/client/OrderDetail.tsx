@@ -215,39 +215,20 @@ export default function OrderDetail() {
   );
 }
 
-// ─── Order Item Row with CSV Export ─────────────────────────
+// ─── Order Item Row with Secure CSV Download ─────────────────
 function OrderItemRow({ item, order }: { item: any; order: any }) {
-  const [exporting, setExporting] = useState(false);
-  const { data: csvData } = trpc.export.leadsCSV.useQuery(
-    { orderId: order.id, orderItemId: item.id },
-    { enabled: false } // manual fetch
-  );
-  const utils = trpc.useUtils();
+  const exportCSV = trpc.export.leadsCSV.useMutation();
 
   const handleExportCSV = async () => {
-    setExporting(true);
     try {
-      const result = await utils.export.leadsCSV.fetch({ orderId: order.id, orderItemId: item.id });
-      if (result.csv) {
-        // Add BOM for Excel UTF-8 compatibility
-        const bom = "\uFEFF";
-        const blob = new Blob([bom + result.csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = result.filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        toast.success("CSV exportado com sucesso!");
-      } else {
-        toast.error("Nenhum lead encontrado para exportar");
+      const result = await exportCSV.mutateAsync({ orderId: order.id, orderItemId: item.id });
+      if (result.downloadUrl) {
+        // Open presigned URL in a new tab — browser will download the CSV
+        window.open(result.downloadUrl, "_blank");
+        toast.success("Download iniciado!");
       }
     } catch {
       toast.error("Erro ao exportar CSV");
-    } finally {
-      setExporting(false);
     }
   };
 
@@ -272,15 +253,15 @@ function OrderItemRow({ item, order }: { item: any; order: any }) {
           {order.status === "paid" && (
             <button
               onClick={handleExportCSV}
-              disabled={exporting}
+              disabled={exportCSV.isPending}
               className="px-4 py-2 text-[10px] uppercase tracking-widest text-[#FF4500] border border-[#FF4500]/30 hover:bg-[#FF4500]/10 transition-colors flex items-center gap-1.5 disabled:opacity-50"
             >
-              {exporting ? (
+              {exportCSV.isPending ? (
                 <RefreshCw className="h-3 w-3 animate-spin" />
               ) : (
                 <Download className="h-3 w-3" />
               )}
-              {exporting ? "Exportando..." : "Exportar CSV"}
+              {exportCSV.isPending ? "Exportando..." : "Exportar CSV"}
             </button>
           )}
         </div>

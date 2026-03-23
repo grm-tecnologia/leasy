@@ -1,6 +1,11 @@
 /**
  * Storage helpers — supports local file storage and direct S3.
  * Replaces Manus Forge storage proxy.
+ *
+ * storageGet      → returns a presigned URL (S3) or public URL (local) for reading.
+ * storageGetSignedUrl → always returns a time-limited presigned URL (S3 mode) or
+ *                       a public URL (local mode). Used for secure CSV downloads.
+ * storagePut      → uploads a file to S3 or local storage.
  */
 import { ENV } from './_core/env';
 import fs from 'fs';
@@ -85,6 +90,21 @@ async function s3Get(relKey: string): Promise<{ key: string; url: string }> {
   return { key, url };
 }
 
+/**
+ * Generate a presigned URL for S3 with a custom expiration time.
+ * Falls back to public URL in local storage mode.
+ */
+async function s3GetSignedUrl(relKey: string, expiresIn: number): Promise<{ key: string; url: string }> {
+  const key = relKey.replace(/^\/+/, "");
+  const client = getS3Client();
+  const command = new GetObjectCommand({
+    Bucket: ENV.s3Bucket,
+    Key: key,
+  });
+  const url = await getSignedUrl(client, command, { expiresIn });
+  return { key, url };
+}
+
 // ─── Public API ─────────────────────────────────────────────────────
 
 export async function storagePut(
@@ -101,6 +121,21 @@ export async function storagePut(
 export async function storageGet(relKey: string): Promise<{ key: string; url: string }> {
   if (ENV.storageMode === "s3") {
     return s3Get(relKey);
+  }
+  return localGet(relKey);
+}
+
+/**
+ * Get a presigned URL for secure, time-limited file access.
+ * S3 mode: generates a presigned URL with the specified expiration (default 900s = 15 min).
+ * Local mode: returns the public URL (no presigning available).
+ */
+export async function storageGetSignedUrl(
+  relKey: string,
+  expiresIn = 900
+): Promise<{ key: string; url: string }> {
+  if (ENV.storageMode === "s3") {
+    return s3GetSignedUrl(relKey, expiresIn);
   }
   return localGet(relKey);
 }

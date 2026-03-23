@@ -1,0 +1,89 @@
+version: "3.9"
+
+services:
+  # ─── Application ─────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: leasy-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=mysql://${MYSQL_USER:-leasy}:${MYSQL_PASSWORD:-leasy_secret}@mysql:3306/${MYSQL_DATABASE:-leasy}
+      - REDIS_URL=redis://redis:6379
+      - STORAGE_PATH=/app/storage
+      - STORAGE_URL=/storage
+    volumes:
+      - app-storage:/app/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - leasy-net
+
+  # ─── MySQL 8 ─────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: leasy-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_secret}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-leasy}
+      MYSQL_USER: ${MYSQL_USER:-leasy}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-leasy_secret}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./drizzle:/docker-entrypoint-initdb.d:ro
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max-connections=200
+      - --innodb-buffer-pool-size=256M
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_secret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - leasy-net
+
+  # ─── Redis 7 (for BullMQ) ───────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: leasy-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - leasy-net
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+  app-storage:
+    driver: local
+
+networks:
+  leasy-net:
+    driver: bridge

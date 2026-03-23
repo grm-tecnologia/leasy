@@ -20,13 +20,57 @@ import {
   getLeadsForExport,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
-import { storagePut } from "./storage";
+import { storagePut, storageGetSignedUrl } from "./storage";
 import { notifyOwner } from "./_core/notification";
 import type { FieldDefinition } from "../drizzle/schema";
 import { createPreference, getPayment } from "./mercadopago";
 import { processOrderPayment } from "./webhooks";
 import { sanitizeObject, sanitizeSearchQuery, validateUploadFile, validateRowCount } from "./security";
 import { sendOrderConfirmationEmail } from "./email";
+import { enqueueLeadProcessing } from "./queue";
+import { checkLLMRateLimit, recordTokenUsage } from "./llm-rate-limiter";
+
+// ─── Sync Fallback for Lead Processing (when Redis is unavailable) ────
+async function processBatchSync(
+  input: { batchId: string; mapping: Record<string, string>; newFields?: Array<{ name: string; label: string; type: string; filterable: boolean; isContact: boolean }>; rows: Array<Record<string, string>> },
+  categoryId: number,
+  category: any
+) {
+  // If there are new fields, add them to the category
+  if (input.newFields && input.newFields.length > 0) {
+    const existingFields = (category.fieldDefinitions as FieldDefinition[]) || [];
+    const existingNames = new Set(existingFields.map((f: any) => f.name));
+    const fieldsToAdd = input.newFields.filter(f => !existingNames.has(f.name));
+    if (fieldsToAdd.length > 0) {
+      await updateCategory(categoryId, {
+        fieldDefinitions: [...existingFields, ...fieldsToAdd],
+      });
+    }
+  }
+
+  const leadsData = input.rows.map(row => {
+    const data: Record<string, unknown> = {};
+    for (const [originalCol, targetField] of Object.entries(input.mapping)) {
+      if (targetField && targetField !== "__skip__" && row[originalCol] !== undefined && row[originalCol] !== null && row[originalCol] !== "") {
+        data[targetField] = row[originalCol].trim();
+      }
+    }
+    return {
+      categoryId,
+      data: sanitizeObject(data),
+      batchId: input.batchId,
+      isActive: true,
+    };
+  }).filter(l => Object.keys(l.data).length > 0);
+
+  await insertLeads(leadsData);
+  await updateCategoryLeadCount(categoryId);
+  await updateUploadBatch(input.batchId, {
+    status: "completed",
+    totalRows: input.rows.length,
+    processedRows: leadsData.length,
+  });
+}
 
 // ─── Routers ─────────────────────────────────────────────────────────
 export const appRouter = router({
@@ -233,7 +277,7 @@ export const appRouter = router({
       batchId: z.string(),
       sampleRows: z.array(z.record(z.string(), z.string())),
       originalColumns: z.array(z.string()),
-    })).mutation(async ({ input }) => {
+    })).mutation(async ({ ctx, input }) => {
       const batch = await getUploadBatch(input.batchId);
       if (!batch) throw new TRPCError({ code: "NOT_FOUND", message: "Batch não encontrado" });
 
@@ -306,6 +350,26 @@ export const appRouter = router({
 
       // Use LLM to enhance: handle unmapped columns and suggest new fields
       const unmappedCols = input.originalColumns.filter(c => !heuristicMapping[c]);
+
+      // Rate limit check before calling OpenAI
+      const rateLimitCheck = checkLLMRateLimit(ctx.user.id);
+      if (!rateLimitCheck.allowed) {
+        console.warn(`[LLM] Rate limited user ${ctx.user.id}: ${rateLimitCheck.reason}`);
+        // Skip LLM, use heuristic fallback only
+        const fallbackNewFields = unmappedCols.map(col => {
+          const snakeName = col.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+          return { name: snakeName, label: col, type: "text" as const, filterable: true, isContact: false };
+        });
+        const fallbackMapping: Record<string, string | null> = { ...heuristicMapping };
+        for (const col of unmappedCols) {
+          const newField = fallbackNewFields.find(f => f.name === col.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, ""));
+          if (newField) fallbackMapping[col] = newField.name;
+        }
+        const cleanMapping: Record<string, string> = {};
+        for (const [k, v] of Object.entries(fallbackMapping)) { if (v) cleanMapping[k] = v; }
+        await updateUploadBatch(input.batchId, { columnMapping: cleanMapping, suggestedFields: fallbackNewFields as FieldDefinition[], status: "mapping" });
+        return { mapping: fallbackMapping, newFields: fallbackNewFields, rateLimited: true };
+      }
       let llmNewFields: Array<{ name: string; label: string; type: string; filterable: boolean; isContact: boolean }> = [];
       let llmMapping: Record<string, string | null> = {};
 
@@ -339,6 +403,11 @@ Regras:
             { role: "user", content: prompt },
           ],
         });
+
+        // Track token usage for cost monitoring
+        if (response.usage?.total_tokens) {
+          recordTokenUsage(response.usage.total_tokens);
+        }
 
         const rawContent = response.choices[0]?.message?.content;
         if (rawContent) {
@@ -417,7 +486,7 @@ Regras:
       return result;
     }),
 
-    // Step 3: Confirm mapping and process leads
+    // Step 3: Confirm mapping and enqueue lead processing (BullMQ background job)
     processLeads: adminProcedure.input(z.object({
       batchId: z.string(),
       mapping: z.record(z.string(), z.string()),
@@ -429,93 +498,12 @@ Regras:
         isContact: z.boolean(),
       })).optional(),
       rows: z.array(z.record(z.string(), z.string())),
-    })).mutation(async ({ input }) => {
+    })).mutation(async ({ ctx, input }) => {
       const batch = await getUploadBatch(input.batchId);
       if (!batch) throw new TRPCError({ code: "NOT_FOUND", message: "Batch não encontrado" });
 
       const category = await getCategoryById(batch.categoryId);
       if (!category) throw new TRPCError({ code: "NOT_FOUND", message: "Categoria não encontrada" });
-
-      // If there are new fields, add them to the category
-      if (input.newFields && input.newFields.length > 0) {
-        const existingFields = (category.fieldDefinitions as FieldDefinition[]) || [];
-        const existingNames = new Set(existingFields.map(f => f.name));
-        const fieldsToAdd = input.newFields.filter(f => !existingNames.has(f.name));
-        if (fieldsToAdd.length > 0) {
-          await updateCategory(batch.categoryId, {
-            fieldDefinitions: [...existingFields, ...fieldsToAdd],
-          });
-        }
-      }
-
-      // Build field type map for validation
-      const allFields = [
-        ...((category.fieldDefinitions as FieldDefinition[]) || []),
-        ...(input.newFields || []),
-      ];
-      const fieldTypeMap = new Map(allFields.map(f => [f.name, f.type]));
-
-      // Validation helpers
-      const validateCpf = (cpf: string): boolean => {
-        const cleaned = cpf.replace(/\D/g, "");
-        if (cleaned.length !== 11 || /^(\d)\1+$/.test(cleaned)) return false;
-        let sum = 0;
-        for (let i = 0; i < 9; i++) sum += parseInt(cleaned[i]) * (10 - i);
-        let rest = 11 - (sum % 11);
-        if (rest >= 10) rest = 0;
-        if (rest !== parseInt(cleaned[9])) return false;
-        sum = 0;
-        for (let i = 0; i < 10; i++) sum += parseInt(cleaned[i]) * (11 - i);
-        rest = 11 - (sum % 11);
-        if (rest >= 10) rest = 0;
-        return rest === parseInt(cleaned[10]);
-      };
-      const validateEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-      const validatePhone = (phone: string): boolean => {
-        const cleaned = phone.replace(/\D/g, "");
-        return cleaned.length >= 10 && cleaned.length <= 13;
-      };
-      const formatPhone = (phone: string): string => {
-        const cleaned = phone.replace(/\D/g, "");
-        if (cleaned.length === 11) return `(${cleaned.slice(0,2)}) ${cleaned.slice(2,7)}-${cleaned.slice(7)}`;
-        if (cleaned.length === 10) return `(${cleaned.slice(0,2)}) ${cleaned.slice(2,6)}-${cleaned.slice(6)}`;
-        return phone;
-      };
-      const formatCpf = (cpf: string): string => {
-        const cleaned = cpf.replace(/\D/g, "");
-        if (cleaned.length === 11) return `${cleaned.slice(0,3)}.${cleaned.slice(3,6)}.${cleaned.slice(6,9)}-${cleaned.slice(9)}`;
-        return cpf;
-      };
-
-      // Transform rows using the mapping with validation
-      const leadsData = input.rows.map(row => {
-        const data: Record<string, unknown> = {};
-        for (const [originalCol, targetField] of Object.entries(input.mapping)) {
-          if (targetField && row[originalCol] !== undefined && row[originalCol] !== null && row[originalCol] !== "") {
-            let value: string = row[originalCol].trim();
-            const fieldType = fieldTypeMap.get(targetField);
-            // Validate and format based on type
-            if (fieldType === "cpf") {
-              if (validateCpf(value)) value = formatCpf(value);
-              else continue; // skip invalid CPF
-            } else if (fieldType === "email") {
-              if (!validateEmail(value)) continue; // skip invalid email
-              value = value.toLowerCase().trim();
-            } else if (fieldType === "phone") {
-              if (!validatePhone(value)) continue; // skip invalid phone
-              value = formatPhone(value);
-            }
-            data[targetField] = value;
-          }
-        }
-        // Sanitize all data values
-        const sanitizedData = sanitizeObject(data);
-        return {
-          categoryId: batch.categoryId,
-          data: sanitizedData,
-          batchId: input.batchId,
-        };
-      }).filter(l => Object.keys(l.data).length > 0);
 
       // Validate row count
       const rowValidation = validateRowCount(input.rows.length);
@@ -523,20 +511,33 @@ Regras:
         throw new TRPCError({ code: "BAD_REQUEST", message: rowValidation.error });
       }
 
-      // Insert leads in batches
-      await insertLeads(leadsData);
-
-      // Update batch status
+      // Update batch status to queued
       await updateUploadBatch(input.batchId, {
-        status: "completed",
+        status: "processing",
+        columnMapping: input.mapping,
+        suggestedFields: (input.newFields ?? []) as FieldDefinition[],
         totalRows: input.rows.length,
-        processedRows: leadsData.length,
+        processedRows: 0,
       });
 
-      // Update category lead count
-      await updateCategoryLeadCount(batch.categoryId);
+      // Enqueue background job for processing
+      try {
+        const jobId = await enqueueLeadProcessing({
+          batchId: input.batchId,
+          categoryId: batch.categoryId,
+          columnMapping: input.mapping,
+          newFields: input.newFields ?? [],
+          rows: input.rows,
+          uploadedBy: ctx.user.id,
+        });
+        console.log(`[Upload] Enqueued job ${jobId} for batch ${input.batchId}`);
+      } catch (queueErr) {
+        // Fallback: process synchronously if Redis/BullMQ is unavailable
+        console.warn("[Upload] Queue unavailable, processing synchronously:", queueErr);
+        await processBatchSync(input, batch.categoryId, category);
+      }
 
-      return { processed: leadsData.length, total: input.rows.length };
+      return { processed: 0, total: input.rows.length, queued: true };
     }),
 
     // Get batch list
@@ -846,18 +847,21 @@ Regras:
     leadsCSV: protectedProcedure.input(z.object({
       orderId: z.number(),
       orderItemId: z.number(),
-    })).query(async ({ ctx, input }) => {
+    })).mutation(async ({ ctx, input }) => {
       const { leads: rows, fields } = await getLeadsForExport(input.orderItemId, input.orderId, ctx.user.id);
-      if (rows.length === 0) return { csv: "", filename: "" };
-      
-      // Build CSV
+      if (rows.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Nenhum lead encontrado para exportar." });
+      }
+
+      // Build CSV with BOM for Excel UTF-8 compatibility
+      const bom = "\uFEFF";
       const headers = fields.length > 0
         ? fields.map(f => f.label)
         : Object.keys((rows[0].data as Record<string, unknown>) ?? {});
       const fieldNames = fields.length > 0
         ? fields.map(f => f.name)
         : Object.keys((rows[0].data as Record<string, unknown>) ?? {});
-      
+
       const csvLines = [headers.join(",")];
       for (const row of rows) {
         const data = row.data as Record<string, unknown>;
@@ -872,11 +876,18 @@ Regras:
         });
         csvLines.push(values.join(","));
       }
-      
-      return {
-        csv: csvLines.join("\n"),
-        filename: `leads-pedido-${input.orderId}-item-${input.orderItemId}.csv`,
-      };
+
+      const csvContent = bom + csvLines.join("\n");
+      const filename = `leads-pedido-${input.orderId}-item-${input.orderItemId}.csv`;
+      const storageKey = `exports/${ctx.user.id}/${input.orderId}/${nanoid(12)}-${filename}`;
+
+      // Upload CSV to storage (S3 or local)
+      await storagePut(storageKey, Buffer.from(csvContent, "utf-8"), "text/csv; charset=utf-8");
+
+      // Return a presigned URL (15 min expiry) — no lead data travels via tRPC
+      const { url } = await storageGetSignedUrl(storageKey, 900);
+
+      return { downloadUrl: url, filename };
     }),
   }),
 });

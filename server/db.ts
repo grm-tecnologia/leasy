@@ -216,6 +216,42 @@ export async function insertLeads(leadsData: InsertLead[]) {
   }
 }
 
+// Map of field names to their generated column names for optimized search
+const GENERATED_COLUMN_MAP: Record<string, string> = {
+  nome: "_search_nome",
+  email: "_search_email",
+  telefone: "_search_telefone",
+  cidade: "_search_cidade",
+  estado: "_search_estado",
+};
+
+/**
+ * Build a WHERE condition for a filter key/value pair.
+ * Uses generated columns (indexed) when available, falls back to JSON_EXTRACT.
+ */
+function buildFilterCondition(key: string, value: string) {
+  const trimmed = value.trim().toLowerCase();
+  const genCol = GENERATED_COLUMN_MAP[key];
+
+  if (genCol) {
+    // Use indexed generated column for fast lookup
+    if (key === "estado" && trimmed.length === 2) {
+      // Exact match for estado (UF)
+      return sql`${sql.raw(genCol)} = ${trimmed.toUpperCase()}`;
+    }
+    if (key === "telefone") {
+      // Numeric-only comparison for phone
+      const numericValue = trimmed.replace(/\D/g, "");
+      return sql`${sql.raw(genCol)} LIKE ${`%${numericValue}%`}`;
+    }
+    // LIKE on generated column (still uses index for prefix matches)
+    return sql`${sql.raw(genCol)} LIKE ${`%${trimmed}%`}`;
+  }
+
+  // Fallback: JSON_EXTRACT for non-indexed fields
+  return sql`LOWER(JSON_UNQUOTE(JSON_EXTRACT(data, ${`$.${key}`}))) LIKE ${`%${trimmed}%`}`;
+}
+
 export async function getLeadsForCategory(
   categoryId: number,
   filters: Record<string, string> = {},
@@ -225,14 +261,12 @@ export async function getLeadsForCategory(
   const db = await getDb();
   if (!db) return { leads: [], total: 0 };
 
-  // Build dynamic WHERE conditions using JSON_EXTRACT
+  // Build dynamic WHERE conditions — uses generated columns when available
   const conditions = [eq(leads.categoryId, categoryId), eq(leads.isActive, true)];
 
   for (const [key, value] of Object.entries(filters)) {
     if (value && value.trim()) {
-      conditions.push(
-        sql`JSON_UNQUOTE(JSON_EXTRACT(${leads.data}, ${`$.${key}`})) LIKE ${`%${value}%`}`
-      );
+      conditions.push(buildFilterCondition(key, value));
     }
   }
 
@@ -278,9 +312,7 @@ export async function countLeadsForFilter(
   const conditions = [eq(leads.categoryId, categoryId), eq(leads.isActive, true)];
   for (const [key, value] of Object.entries(filters)) {
     if (value && value.trim()) {
-      conditions.push(
-        sql`JSON_UNQUOTE(JSON_EXTRACT(${leads.data}, ${`$.${key}`})) LIKE ${`%${value}%`}`
-      );
+      conditions.push(buildFilterCondition(key, value));
     }
   }
 
@@ -291,14 +323,32 @@ export async function countLeadsForFilter(
 export async function getDistinctValues(categoryId: number, fieldName: string) {
   const db = await getDb();
   if (!db) return [];
-  const result = await db.execute(
-    sql`SELECT DISTINCT JSON_UNQUOTE(JSON_EXTRACT(data, ${`$.${fieldName}`})) as val 
-        FROM leads 
-        WHERE categoryId = ${categoryId} AND isActive = true 
-        AND JSON_EXTRACT(data, ${`$.${fieldName}`}) IS NOT NULL
-        ORDER BY val
-        LIMIT 100`
-  );
+
+  const genCol = GENERATED_COLUMN_MAP[fieldName];
+  let result;
+
+  if (genCol) {
+    // Use indexed generated column for fast DISTINCT
+    result = await db.execute(
+      sql`SELECT DISTINCT ${sql.raw(genCol)} as val 
+          FROM leads 
+          WHERE categoryId = ${categoryId} AND isActive = true 
+          AND ${sql.raw(genCol)} IS NOT NULL AND ${sql.raw(genCol)} != ''
+          ORDER BY val
+          LIMIT 100`
+    );
+  } else {
+    // Fallback: JSON_EXTRACT for non-indexed fields
+    result = await db.execute(
+      sql`SELECT DISTINCT JSON_UNQUOTE(JSON_EXTRACT(data, ${`$.${fieldName}`})) as val 
+          FROM leads 
+          WHERE categoryId = ${categoryId} AND isActive = true 
+          AND JSON_EXTRACT(data, ${`$.${fieldName}`}) IS NOT NULL
+          ORDER BY val
+          LIMIT 100`
+    );
+  }
+
   return (result as any)[0].map((r: any) => r.val).filter(Boolean);
 }
 

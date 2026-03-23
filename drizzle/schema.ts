@@ -110,6 +110,8 @@ export const orders = mysqlTable("orders", {
     .notNull(),
   /** Mercado Pago payment ID */
   paymentId: varchar("paymentId", { length: 255 }),
+  /** Unique payment provider ID for idempotency (prevents duplicate processing) */
+  paymentProviderId: varchar("paymentProviderId", { length: 255 }).unique(),
   paymentUrl: varchar("paymentUrl", { length: 1024 }),
   /** JSON with payment details from Mercado Pago */
   paymentDetails: json("paymentDetails").$type<Record<string, unknown>>(),
